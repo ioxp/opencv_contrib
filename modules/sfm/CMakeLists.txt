@@ -49,8 +49,6 @@ set(LIBMV_LIGHT_LIBS
   correspondence
   multiview
   numeric
-  ${GLOG_LIBRARIES}
-  ${GFLAGS_LIBRARIES}
 )
 
 if(Ceres_FOUND)
@@ -115,7 +113,16 @@ endif()
 include_directories(${OCV_TARGET_INCLUDE_DIRS_${the_module}})
 add_subdirectory(src/libmv_light)
 
-ocv_target_link_libraries(${the_module} ${LIBMV_LIGHT_LIBS})
+# Workaround: add debug and release
+set(GFLAGS_LIBRARIES "${gflags_DIR}/../Lib/${GFLAGS_LIBRARY}.lib")
+set(GFLAGS_LIBRARIES_DEBUG "${gflags_DIR}/../Lib/Debug/${GFLAGS_LIBRARY}.lib")
+
+string(REPLACE "Release" "Debug" GLOG_LIBRARIES_DEBUG ${GLOG_LIBRARIES})
+
+ocv_target_link_libraries(${the_module}
+  ${LIBMV_LIGHT_LIBS}
+  optimized ${GLOG_LIBRARIES} debug ${GLOG_LIBRARIES_DEBUG}
+  optimized ${GFLAGS_LIBRARIES} debug ${GFLAGS_LIBRARIES_DEBUG})
 
 
 ### CREATE OPENCV SFM TESTS ###
